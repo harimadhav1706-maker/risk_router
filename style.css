@@ -1,0 +1,685 @@
+:root {
+    --bg-navy: #F4F6F8;
+    --bg-panel: rgba(255, 255, 255, 0.95);
+    --accent-orange: #F97316;
+    --safe-green: #10B981;
+    --warning-red: #EF4444;
+    --blue: #2563EB;
+    --text-main: #1E293B;
+    --text-muted: #64748B;
+    --border-color: rgba(0, 0, 0, 0.08);
+    --font-heading: 'Poppins', sans-serif;
+    --font-body: 'Inter', sans-serif;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    font-family: var(--font-body);
+    color: var(--text-main);
+    overflow: hidden;
+    background-color: var(--bg-navy);
+}
+
+/* Map */
+#map {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1;
+}
+
+/* Base UI Controls */
+input,
+button {
+    font-family: var(--font-body);
+}
+
+/* Top Nav (Desktop) */
+.top-nav {
+    position: fixed;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 95%;
+    max-width: 1200px;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+    border-radius: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 24px;
+    z-index: 1000;
+}
+
+.nav-left .logo {
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--accent-orange);
+    letter-spacing: 0.5px;
+}
+
+.nav-left .tagline {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+
+
+.nav-right {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.nav-right>div {
+    background: #F1F5F9;
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid transparent;
+}
+
+.mode-toggle {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+    font-weight: 500;
+}
+
+.mode-toggle:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.mobile-search-bar {
+    display: none;
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 6px 12px;
+    z-index: 1000;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.mobile-search-bar .search-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text-main);
+    padding: 8px;
+    font-size: 1rem;
+}
+
+.mobile-search-bar .search-input:focus {
+    outline: none;
+}
+
+.icon-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 8px;
+}
+
+/* Side Panel / Bottom Sheet */
+.side-panel {
+    position: fixed;
+    top: 100px;
+    left: 24px;
+    width: 360px;
+    background: var(--bg-panel);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    border-radius: 20px;
+    padding: 24px;
+    z-index: 900;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+}
+
+/* Custom scrollbar for side panel */
+.side-panel::-webkit-scrollbar {
+    width: 6px;
+}
+
+.side-panel::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.side-panel::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+
+.mobile-handle {
+    display: none;
+    width: 40px;
+    height: 5px;
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 10px;
+    margin: 0 auto 16px auto;
+}
+
+.search-section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 14px 16px;
+    background: #F1F5F9;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    color: var(--text-main);
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    background: #FFFFFF;
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.search-input::placeholder {
+    color: var(--text-muted);
+}
+
+.vehicle-selector {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 5px;
+}
+
+.vehicle-btn {
+    flex: 1;
+    background: #F1F5F9;
+    color: var(--text-muted);
+    border: 1px solid transparent;
+    padding: 10px;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.vehicle-btn.active {
+    background: rgba(37, 99, 235, 0.1);
+    color: var(--blue);
+    font-weight: 600;
+}
+
+.vehicle-btn:hover:not(.active) {
+    background: #E2E8F0;
+}
+
+.primary-btn {
+    background: var(--blue);
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.3s;
+    height: 48px;
+    /* Touch friendly */
+}
+
+.primary-btn:hover {
+    background: #2563EB;
+}
+
+.route-safety-card {
+    background: #F8FAFC;
+    border-radius: 16px;
+    padding: 20px;
+    border: 1px solid var(--border-color);
+}
+
+.route-safety-card h3 {
+    font-family: var(--font-heading);
+    font-size: 1.15rem;
+    margin-bottom: 16px;
+    color: var(--text-main);
+}
+
+.route-stats {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.route-stats .value {
+    color: var(--text-main);
+    font-weight: 600;
+}
+
+
+
+/* Routing Instructions on Map Overlay */
+
+/* Hide Default Leaflet Routing Control text block from map area initially */
+.leaflet-routing-container.leaflet-bar.leaflet-control {
+    display: none;
+    background: var(--bg-panel) !important;
+    color: var(--text-main) !important;
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--border-color) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08) !important;
+    border-radius: 16px !important;
+    padding: 16px !important;
+    width: 320px !important;
+    max-height: 60vh !important;
+    overflow-y: auto !important;
+    margin-top: 100px !important;
+    /* To bypass top nav */
+    margin-right: 24px !important;
+    transition: opacity 0.3s;
+}
+
+/* Custom scrollbar for routing container */
+.leaflet-routing-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.leaflet-routing-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.leaflet-routing-container::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+}
+
+/* Sub-elements of Leaflet Routing */
+.leaflet-routing-alt {
+    max-height: none !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+}
+
+.leaflet-routing-alt h2 {
+    display: none;
+    /* Hide default summary */
+}
+
+.leaflet-routing-alt h3 {
+    display: none;
+}
+
+.leaflet-routing-alt table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.leaflet-routing-alt tr {
+    border-bottom: 1px solid var(--border-color);
+    transition: background 0.3s;
+}
+
+.leaflet-routing-alt tr:hover {
+    background: rgba(0, 0, 0, 0.03);
+}
+
+.leaflet-routing-alt td {
+    padding: 12px 4px;
+    color: var(--text-main);
+}
+
+.leaflet-routing-icon {
+    opacity: 0.8;
+}
+
+/* Locate Me Button */
+.locate-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: linear-gradient(135deg, var(--blue), #1D4ED8);
+    color: white;
+    border: none;
+    padding: 14px 20px;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+    cursor: pointer;
+    z-index: 900;
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.locate-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.6);
+}
+
+
+
+/* Leaflet Default overrides */
+.leaflet-routing-container {
+    display: none;
+}
+
+
+
+/* Navigation Mode Banner & Bottom Card */
+.nav-banner {
+    position: fixed;
+    top: -200px;
+    /* Start hidden for animation */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 95%;
+    max-width: 500px;
+    z-index: 2000;
+    transition: all 0.5s ease;
+    opacity: 0;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.nav-banner.active {
+    opacity: 1;
+    pointer-events: auto;
+    top: 16px;
+}
+
+.primary-instruction {
+    background: #0f766e;
+    /* Teal / Dark Green */
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    padding: 16px 20px;
+    gap: 16px;
+}
+
+.nav-text-container {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+}
+
+.secondary-instruction {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-color);
+    backdrop-filter: blur(12px);
+    border-radius: 12px;
+    padding: 10px 16px;
+    display: none;
+    /* Only show when needed */
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.secondary-instruction.active {
+    display: flex;
+}
+
+.nav-icon {
+    width: 48px;
+    height: 48px;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-icon.small-icon {
+    width: 32px;
+    height: 32px;
+    color: var(--text-muted);
+}
+
+.nav-status-label {
+    align-self: flex-end;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(8px);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #10B981;
+    border: 1px solid var(--border-color);
+}
+
+.nav-status-label.rerouting {
+    color: var(--accent-orange);
+    background: rgba(249, 115, 22, 0.2);
+    border-color: rgba(249, 115, 22, 0.3);
+}
+
+.nav-distance {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: white;
+}
+
+.nav-instruction {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.nav-secondary-text {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-main);
+}
+
+.nav-secondary-text.label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* Bottom Nav Card */
+.nav-bottom-card {
+    position: fixed;
+    bottom: -150px;
+    left: 0;
+    width: 100%;
+    background: var(--bg-panel);
+    backdrop-filter: blur(20px);
+    border-radius: 24px 24px 0 0;
+    border-top: 1px solid var(--border-color);
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.08);
+    z-index: 2000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px 30px 24px;
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.nav-bottom-card.active {
+    bottom: 0;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.nav-eta-box {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.eta-time {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--safe-green);
+}
+
+.eta-stats {
+    font-size: 1rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.stop-nav-btn {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--warning-red);
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+    transition: transform 0.2s;
+}
+
+.stop-nav-btn:hover {
+    transform: scale(1.08);
+}
+
+/* User navigation marker */
+.nav-user-marker {
+    width: 32px;
+    height: 32px;
+    background: var(--blue);
+    border-radius: 50%;
+    border: 4px solid white;
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.8), 0 0 0 10px rgba(59, 130, 246, 0.2);
+    position: relative;
+}
+
+.nav-user-marker::after {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 0 8px 12px 8px;
+    border-style: solid;
+    border-color: transparent transparent var(--blue) transparent;
+}
+
+/* Hide other UI elements during navigation */
+body.nav-mode .top-nav,
+body.nav-mode .side-panel,
+body.nav-mode .mobile-search-bar,
+body.nav-mode .locate-btn,
+body.nav-mode .mobile-menu-btn {
+    opacity: 0;
+    pointer-events: none;
+}
+
+body.nav-mode .leaflet-routing-container {
+    display: none !important;
+}
+
+/* Responsive Styles for Mobile */
+@media (max-width: 768px) {
+    .top-nav {
+        display: none;
+        /* Hide desktop nav */
+    }
+
+    .mobile-search-bar {
+        display: flex;
+    }
+
+    .side-panel {
+        top: auto;
+        bottom: 0px;
+        left: 0;
+        width: 100%;
+        border-radius: 24px 24px 0 0;
+        border: none;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 16px 24px 24px 24px;
+        gap: 0;
+        transform: translateY(100%);
+        animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.5s;
+    }
+
+    .mobile-handle {
+        display: block;
+    }
+
+    .search-section {
+        display: none;
+        /* Removed from bottom panel on mobile */
+    }
+
+    .route-safety-card {
+        background: transparent;
+        border: none;
+        padding: 0;
+    }
+
+    .route-safety-card h3 {
+        display: none;
+        /* Clean up layout */
+    }
+
+    .locate-btn {
+        bottom: calc(250px + 20px);
+        /* Position above bottom panel */
+        right: 16px;
+        padding: 12px 20px;
+        font-size: 0.9rem;
+    }
+
+    @keyframes slideUp {
+        to {
+            transform: translateY(0);
+        }
+    }
+
+    .leaflet-bottom.leaflet-right {
+        bottom: 250px !important;
+    }
+}

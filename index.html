@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Maps</title>
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap"
+        rel="stylesheet">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="style.css">
+    <meta name="description" content="A simple, fast routing map.">
+</head>
+
+<body>
+
+    <!-- Desktop Navigation Bar -->
+    <header class="top-nav" id="desktop-nav">
+        <div class="nav-left">
+            <h1 class="logo">Maps</h1>
+            <span class="tagline">Explore and navigate</span>
+        </div>
+        <div class="nav-right">
+            <div class="weather-indicator">⛅ 28°C</div>
+            <div class="traffic-status">Traffic: Moderate</div>
+        </div>
+    </header>
+
+
+    <!-- Mobile Top Elements -->
+    <div class="mobile-search-bar" id="mobile-search">
+        <input type="text" placeholder="Search Place" class="search-input">
+        <button class="icon-btn" aria-label="Search">🔍</button>
+    </div>
+
+    <!-- Top Navigation Banner (Hidden by default) -->
+    <div id="nav-banner" class="nav-banner">
+        <div class="primary-instruction">
+            <div class="nav-icon" id="primary-direction-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m0-16l-4 4m4-4l4 4" />
+                </svg>
+            </div>
+            <div class="nav-text-container">
+                <div class="nav-distance" id="nav-distance">--</div>
+                <div class="nav-instruction" id="nav-instruction">Head South</div>
+            </div>
+        </div>
+        <div class="secondary-instruction" id="secondary-instruction-box">
+            <div class="nav-icon small-icon" id="secondary-direction-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+            </div>
+            <div class="nav-text-container">
+                <div class="nav-secondary-text label">Then</div>
+                <div class="nav-secondary-text" id="nav-secondary-text">Turn left</div>
+            </div>
+        </div>
+        <div class="nav-status-label" id="nav-status">En Route</div>
+    </div>
+
+    <!-- Bottom Navigation Info Card -->
+    <div id="nav-bottom-card" class="nav-bottom-card">
+        <div class="nav-eta-box">
+            <div class="eta-time" id="nav-eta-time">-- min</div>
+            <div class="eta-stats">
+                <span id="nav-eta-distance">-- km</span> • <span id="nav-eta-arrival">--:--</span>
+            </div>
+        </div>
+        <button id="stop-nav-btn" class="stop-nav-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+    </div>
+
+    <!-- Map Container -->
+    <div id="map"></div>
+
+    <aside class="side-panel" id="side-panel">
+        <!-- Inner handle for mobile drag simulation -->
+        <div class="mobile-handle" id="mobile-handle"></div>
+
+        <div class="search-section">
+            <div class="vehicle-selector">
+                <button class="vehicle-btn active" data-vehicle="driving">🚗 Car</button>
+                <button class="vehicle-btn" data-vehicle="cycling">🚲 Bike</button>
+            </div>
+            <input type="text" placeholder="Choose starting point..." class="search-input" id="start-loc">
+            <input type="text" placeholder="Choose destination..." class="search-input" id="end-loc">
+            <button class="primary-btn" id="check-route-btn">Get Directions</button>
+        </div>
+
+        <div class="route-safety-card" id="route-panel" style="display: none;">
+            <h3>Route Info</h3>
+            <div class="route-stats">
+                <div class="stat"><span class="label">Distance:</span> <span class="value" id="dist-val">-- km</span>
+                </div>
+                <div class="stat"><span class="label">Est. Time:</span> <span class="value" id="time-val">-- mins</span>
+                </div>
+            </div>
+            <button class="primary-btn" id="start-nav-btn" style="display: none; margin-top: 15px;">🚀 Start
+                Navigation</button>
+        </div>
+    </aside>
+
+    <button class="locate-btn" id="locate-btn" aria-label="Locate Me">📍 My Location</button>
+
+    <!-- Leaflet JS & Routing Machine -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+    <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
