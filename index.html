@@ -84,6 +84,29 @@
     <button id="traffic-toggle-btn" class="traffic-toggle-btn">🚥 Traffic: ON</button>
     <button id="risk-toggle-btn" class="risk-toggle-btn">🛡️ Risk View: OFF</button>
 
+    <div class="action-buttons-column">
+        <button id="sos-btn" class="sos-btn">🚨 SOS</button>
+        <button id="report-hazard-btn" class="report-hazard-btn">📢 Report Hazard</button>
+    </div>
+
+    <!-- Hazard Report Modal -->
+    <div id="hazard-modal" class="hazard-modal" style="display: none;">
+        <div class="modal-content">
+            <h3>Report a Hazard</h3>
+            <select id="hazard-type" class="search-input">
+                <option value="accident">Accident</option>
+                <option value="flood">Waterlogging</option>
+                <option value="damage">Road Damage</option>
+            </select>
+            <input type="text" id="hazard-desc" placeholder="Brief description..." class="search-input"
+                style="margin-top: 10px;">
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button id="submit-hazard" class="primary-btn" style="flex: 1;">Submit</button>
+                <button id="close-hazard-modal" class="vehicle-btn" style="flex: 1;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Safety Alert Box -->
     <div id="safety-alert-box" class="safety-alert-box">
         <span id="safety-alert-text">⚠ Hazard Ahead</span>

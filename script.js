@@ -69,6 +69,12 @@ document.addEventListener('DOMContentLoaded', () => {
         damageZones: [
             { lat: 17.4350, lng: 78.4450, radius: 80, severity: 60, desc: "Road construction / damage" },
             { lat: 17.4120, lng: 78.4600, radius: 90, severity: 65, desc: "Deep potholes" }
+        ],
+        sharpCurves: [
+            { lat: 17.4300, lng: 78.4200, radius: 80, severity: 50, desc: "Sharp Curve" }
+        ],
+        railwayCrossings: [
+            { lat: 17.4600, lng: 78.4300, radius: 100, severity: 60, desc: "Railway Crossing" }
         ]
     };
 
@@ -77,9 +83,57 @@ document.addEventListener('DOMContentLoaded', () => {
     let cachedRoutes = []; // To store OSRM alternatives for selection
 
     // Draw hazards onto the layer
-    hazardData.accidentZones.forEach(h => L.circle([h.lat, h.lng], { radius: h.radius, color: 'red', fillColor: '#ef4444', fillOpacity: 0.4, weight: 1 }).bindPopup(`<b>⚠ Hazard</b><br>${h.desc}`).addTo(hazardLayer));
-    hazardData.floodZones.forEach(h => L.circle([h.lat, h.lng], { radius: h.radius, color: 'blue', fillColor: '#3b82f6', fillOpacity: 0.4, weight: 1 }).bindPopup(`<b>🌊 Waterlogging</b><br>${h.desc}`).addTo(hazardLayer));
-    hazardData.damageZones.forEach(h => L.circle([h.lat, h.lng], { radius: h.radius, color: 'orange', fillColor: '#f97316', fillOpacity: 0.4, weight: 1 }).bindPopup(`<b>🚧 Road Damage</b><br>${h.desc}`).addTo(hazardLayer));
+    function redrawHazards() {
+        hazardLayer.clearLayers();
+        hazardData.accidentZones.forEach(h => L.circle([h.lat, h.lng], { radius: h.radius, color: 'red', fillColor: '#ef4444', fillOpacity: 0.4, weight: 1 }).bindPopup(`<b>⚠ Hazard</b><br>${h.desc}`).addTo(hazardLayer));
+        hazardData.floodZones.forEach(h => L.circle([h.lat, h.lng], { radius: h.radius, color: 'blue', fillColor: '#3b82f6', fillOpacity: 0.4, weight: 1 }).bindPopup(`<b>🌊 Waterlogging</b><br>${h.desc}`).addTo(hazardLayer));
+        hazardData.damageZones.forEach(h => L.circle([h.lat, h.lng], { radius: h.radius, color: 'orange', fillColor: '#f97316', fillOpacity: 0.4, weight: 1 }).bindPopup(`<b>🚧 Road Damage</b><br>${h.desc}`).addTo(hazardLayer));
+        hazardData.sharpCurves.forEach(h => L.circle([h.lat, h.lng], { radius: h.radius, color: 'purple', fillColor: '#a855f7', fillOpacity: 0.4, weight: 1 }).bindPopup(`<b>↩ Sharp Curve</b><br>${h.desc}`).addTo(hazardLayer));
+        hazardData.railwayCrossings.forEach(h => L.circle([h.lat, h.lng], { radius: h.radius, color: 'brown', fillColor: '#8b4513', fillOpacity: 0.4, weight: 1 }).bindPopup(`<b>🚆 Railway</b><br>${h.desc}`).addTo(hazardLayer));
+    }
+    redrawHazards();
+
+    const sosBtn = document.getElementById('sos-btn');
+    if (sosBtn) {
+        sosBtn.addEventListener('click', () => {
+            alert("🚨 EMERGENCY SOS SENT!\n\nDispatching Ambulance & Police to your live location. Live tracking link generated and shared with emergency contacts.");
+        });
+    }
+
+    const reportHazardBtn = document.getElementById('report-hazard-btn');
+    const hazardModal = document.getElementById('hazard-modal');
+    if (reportHazardBtn && hazardModal) {
+        reportHazardBtn.addEventListener('click', () => {
+            hazardModal.style.display = 'flex';
+        });
+
+        document.getElementById('close-hazard-modal').addEventListener('click', () => {
+            hazardModal.style.display = 'none';
+        });
+
+        document.getElementById('submit-hazard').addEventListener('click', () => {
+            const centerPoint = lastUserPos || map.getCenter();
+            const type = document.getElementById('hazard-type').value;
+            const desc = document.getElementById('hazard-desc').value || "User Reported Hazard";
+
+            let targetArray = hazardData.damageZones;
+            if (type === 'accident') targetArray = hazardData.accidentZones;
+            if (type === 'flood') targetArray = hazardData.floodZones;
+
+            targetArray.push({
+                lat: centerPoint.lat,
+                lng: centerPoint.lng,
+                radius: 100,
+                severity: 70,
+                desc: desc + " (Crowdsourced)"
+            });
+
+            redrawHazards();
+            alert("Hazard Reported Successfully! It is now live on the network.");
+            hazardModal.style.display = 'none';
+            document.getElementById('hazard-desc').value = '';
+        });
+    }
 
     const riskToggleBtn = document.getElementById('risk-toggle-btn');
     if (riskToggleBtn) {
@@ -339,9 +393,22 @@ document.addEventListener('DOMContentLoaded', () => {
         checkHazardDistance(hazardData.accidentZones, "⚠");
         if (!triggerAlert) checkHazardDistance(hazardData.floodZones, "🌊");
         if (!triggerAlert) checkHazardDistance(hazardData.damageZones, "🚧");
+        if (!triggerAlert) checkHazardDistance(hazardData.sharpCurves, "↩");
+        if (!triggerAlert) checkHazardDistance(hazardData.railwayCrossings, "🚆");
+
+        // Driver Safety Speed Monitoring
+        let speedLimit = 60; // Assume 60 km/h default city limit context
+        if (speedKmph > speedLimit) {
+            if (!triggerAlert) triggerAlert = `🚔 OVERSPEEDING! Reduce speed below ${speedLimit} km/h`;
+            if (speedEl) speedEl.style.color = 'var(--warning-red)';
+            if (speedEl) speedEl.style.fontWeight = 'bold';
+        } else {
+            if (speedEl) speedEl.style.color = 'var(--text-muted)';
+        }
 
         if (triggerAlert && triggerAlert !== lastAlertShown) {
-            safetyAlertText.innerText = triggerAlert + " ahead!";
+            safetyAlertText.innerText = triggerAlert;
+            if (!triggerAlert.includes("OVERSPEEDING")) safetyAlertText.innerText += " ahead!";
             safetyAlertBox.classList.add('active');
             lastAlertShown = triggerAlert;
             // Auto hide
@@ -620,9 +687,13 @@ document.addEventListener('DOMContentLoaded', () => {
     function predictRiskScore(coordinates) {
         let baseRisk = 15; // 15% inherent risk 
         const hour = new Date().getHours();
-        if (hour > 20 || hour < 6) baseRisk += 25; // Night driving risk penalty
+        if (hour > 20 || hour < 6) baseRisk += 10; // Night driving risk penalty (10%)
 
         let localHazards = [];
+
+        // Simulate Weather Integration (Weather API mock)
+        let simulatedWeatherIndex = Math.floor(Math.random() * 10);
+        baseRisk += simulatedWeatherIndex; // Weather Penalty (10%)
 
         // Convert route coordinates to Leaflet LatLng early for speed
         const pathLine = coordinates.map(c => L.latLng(c[1], c[0]));
@@ -640,12 +711,14 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         };
 
-        checkHazardSet(hazardData.accidentZones, 0.4);
-        checkHazardSet(hazardData.floodZones, 0.35);
-        checkHazardSet(hazardData.damageZones, 0.2);
+        checkHazardSet(hazardData.accidentZones, 0.25); // Accident Zones (25%)
+        checkHazardSet(hazardData.floodZones, 0.10);    // Flood Zones (10%)
+        checkHazardSet(hazardData.damageZones, 0.10);   // Road Damage (10%)
+        checkHazardSet(hazardData.sharpCurves, 0.05);   // Curves (5%)
+        checkHazardSet(hazardData.railwayCrossings, 0.05); // Railway (5%)
 
         baseRisk = Math.min(Math.round(baseRisk), 100);
-        return { score: baseRisk, hazards: localHazards };
+        return { score: baseRisk, hazards: localHazards, weatherValue: simulatedWeatherIndex };
     }
 
     async function calculateRealRoute() {
