@@ -67,8 +67,11 @@
     <div id="nav-bottom-card" class="nav-bottom-card">
         <div class="nav-eta-box">
             <div class="eta-time" id="nav-eta-time">-- min</div>
+            <div class="nav-road-name" id="nav-road-name">Exploring ...</div>
             <div class="eta-stats">
-                <span id="nav-eta-distance">-- km</span> • <span id="nav-eta-arrival">--:--</span>
+                <span id="nav-eta-distance">-- km</span> •
+                <span id="nav-speed">0 km/h</span> •
+                <span id="nav-eta-arrival">--:--</span>
             </div>
         </div>
         <button id="stop-nav-btn" class="stop-nav-btn">
@@ -76,6 +79,20 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
         </button>
+    </div>
+
+    <button id="traffic-toggle-btn" class="traffic-toggle-btn">🚥 Traffic: ON</button>
+    <button id="risk-toggle-btn" class="risk-toggle-btn">🛡️ Risk View: OFF</button>
+
+    <!-- Safety Alert Box -->
+    <div id="safety-alert-box" class="safety-alert-box">
+        <span id="safety-alert-text">⚠ Hazard Ahead</span>
+    </div>
+
+    <!-- Navigation Custom Zoom Controls -->
+    <div class="nav-zoom-controls" id="nav-zoom-controls" style="display: none;">
+        <button id="nav-zoom-in" aria-label="Zoom In">+</button>
+        <button id="nav-zoom-out" aria-label="Zoom Out">−</button>
     </div>
 
     <!-- Map Container -->
@@ -96,12 +113,9 @@
         </div>
 
         <div class="route-safety-card" id="route-panel" style="display: none;">
-            <h3>Route Info</h3>
-            <div class="route-stats">
-                <div class="stat"><span class="label">Distance:</span> <span class="value" id="dist-val">-- km</span>
-                </div>
-                <div class="stat"><span class="label">Est. Time:</span> <span class="value" id="time-val">-- mins</span>
-                </div>
+            <h3>Multiple Route Options</h3>
+            <div id="route-choices-container" class="route-choices-container">
+                <!-- Route choices injected dynamically -->
             </div>
             <button class="primary-btn" id="start-nav-btn" style="display: none; margin-top: 15px;">🚀 Start
                 Navigation</button>
@@ -110,10 +124,8 @@
 
     <button class="locate-btn" id="locate-btn" aria-label="Locate Me">📍 My Location</button>
 
-    <!-- Leaflet JS & Routing Machine -->
+    <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
-    <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
     <script src="script.js"></script>
 </body>
 

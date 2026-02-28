@@ -606,11 +606,109 @@ button {
     border-color: transparent transparent var(--blue) transparent;
 }
 
+/* Traffic Toggle Button */
+.traffic-toggle-btn {
+    position: fixed;
+    top: 100px;
+    right: 24px;
+    background: var(--bg-panel);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+    padding: 10px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    cursor: pointer;
+    z-index: 900;
+    backdrop-filter: blur(12px);
+    transition: all 0.3s ease;
+}
+
+.risk-toggle-btn {
+    position: fixed;
+    top: 150px;
+    right: 24px;
+    background: var(--bg-panel);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+    padding: 10px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    cursor: pointer;
+    z-index: 900;
+    backdrop-filter: blur(12px);
+    transition: all 0.3s ease;
+}
+
+.traffic-toggle-btn.off,
+.risk-toggle-btn.off {
+    color: var(--text-muted);
+    background: rgba(255, 255, 255, 0.7);
+}
+
+.nav-road-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--blue);
+    margin: 2px 0 4px 0;
+}
+
+/* Custom Navigation Zoom Controls */
+.nav-zoom-controls {
+    position: fixed;
+    right: 20px;
+    bottom: calc(150px + 20px);
+    /* Just above the bottom nav card when active */
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 2000;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+}
+
+.nav-zoom-controls.active {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.nav-zoom-controls button {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--bg-panel);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+    font-size: 28px;
+    font-weight: 400;
+    line-height: 1;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, transform 0.2s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.nav-zoom-controls button:active {
+    transform: scale(0.9);
+    background: #E2E8F0;
+}
+
 /* Hide other UI elements during navigation */
 body.nav-mode .top-nav,
 body.nav-mode .side-panel,
 body.nav-mode .mobile-search-bar,
 body.nav-mode .locate-btn,
+body.nav-mode .traffic-toggle-btn,
+body.nav-mode .risk-toggle-btn,
 body.nav-mode .mobile-menu-btn {
     opacity: 0;
     pointer-events: none;
@@ -628,7 +726,8 @@ body.nav-mode .leaflet-routing-container {
     }
 
     .mobile-search-bar {
-        display: flex;
+        display: none;
+        /* Hide dummy top layout to focus on routing engine */
     }
 
     .side-panel {
@@ -640,9 +739,12 @@ body.nav-mode .leaflet-routing-container {
         border: none;
         border-top: 1px solid rgba(255, 255, 255, 0.1);
         padding: 16px 24px 24px 24px;
-        gap: 0;
+        gap: 12px;
         transform: translateY(100%);
         animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.5s;
+        max-height: 45vh;
+        /* Keep map visible */
+        overflow-y: auto;
     }
 
     .mobile-handle {
@@ -650,8 +752,9 @@ body.nav-mode .leaflet-routing-container {
     }
 
     .search-section {
-        display: none;
-        /* Removed from bottom panel on mobile */
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
     }
 
     .route-safety-card {
@@ -660,9 +763,11 @@ body.nav-mode .leaflet-routing-container {
         padding: 0;
     }
 
+    /* Show the h3 Title for Routes */
     .route-safety-card h3 {
-        display: none;
-        /* Clean up layout */
+        display: block;
+        margin-top: 10px;
+        margin-bottom: 10px;
     }
 
     .locate-btn {
@@ -682,4 +787,132 @@ body.nav-mode .leaflet-routing-container {
     .leaflet-bottom.leaflet-right {
         bottom: 250px !important;
     }
+}
+
+/* Route Styling & Animations */
+.route-path-animated {
+    stroke-dasharray: 20;
+    animation: dashLoop 2s linear infinite;
+}
+
+@keyframes dashLoop {
+    0% {
+        stroke-dashoffset: 40;
+    }
+
+    100% {
+        stroke-dashoffset: 0;
+    }
+}
+
+.route-arrow {
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.primary-route-path {
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 4px 10px rgba(30, 58, 138, 0.4));
+}
+
+/* Route Choices & Risk Cards */
+.route-choices-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.route-choice-card {
+    background: #FFFFFF;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.9rem;
+}
+
+.route-choice-card:hover {
+    border-color: var(--blue);
+    background: #F8FAFC;
+    transform: translateY(-2px);
+}
+
+.route-choice-card.selected {
+    border-width: 2px;
+    border-color: var(--blue);
+    background: rgba(37, 99, 235, 0.04);
+}
+
+.route-choice-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.route-choice-header .title {
+    font-size: 1rem;
+    color: var(--text-main);
+}
+
+.risk-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.risk-badge.low {
+    background: rgba(16, 185, 129, 0.15);
+    color: #059669;
+}
+
+.risk-badge.medium {
+    background: rgba(249, 115, 22, 0.15);
+    color: #EA580C;
+}
+
+.risk-badge.high {
+    background: rgba(239, 68, 68, 0.15);
+    color: #DC2626;
+}
+
+.route-choice-stats {
+    display: flex;
+    gap: 16px;
+    color: var(--text-muted);
+}
+
+.route-choice-stats span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.safety-alert-box {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-100px);
+    background: rgba(239, 68, 68, 0.9);
+    color: white;
+    padding: 14px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    box-shadow: 0 10px 30px rgba(239, 68, 68, 0.4);
+    z-index: 3000;
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+    backdrop-filter: blur(10px);
+}
+
+.safety-alert-box.active {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
 }
