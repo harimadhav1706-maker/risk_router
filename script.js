@@ -461,10 +461,14 @@ document.addEventListener('DOMContentLoaded', () => {
         targetPoint.y -= yOffset;
         let targetCenter = map.unproject(targetPoint, targetZoom);
 
-        // Apply smooth easing transitions
-        map.setView(targetCenter, targetZoom, {
+        // Apply smooth easing transitions using setZoom + panTo
+        if (targetZoom !== map.getZoom()) {
+            map.setZoom(targetZoom, { animate: true });
+        }
+        map.panTo(targetCenter, {
             animate: true,
-            pan: { duration: 0.8, easeLinearity: 0.25 }
+            duration: 1.0,
+            easeLinearity: 0.25
         });
 
         // Update User Marker
@@ -478,7 +482,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             userMarker = L.marker(userLatLng, {
                 icon: L.divIcon({
-                    className: '',
+                    className: 'nav-user-container', // Custom class for smooth CSS transform transitions
                     html: `<div class="nav-user-marker" style="transform: rotate(${heading}deg)"></div>`,
                     iconSize: [32, 32],
                     iconAnchor: [16, 16]
