@@ -348,13 +348,21 @@ document.addEventListener('DOMContentLoaded', () => {
         return (brng * 180 / Math.PI + 360) % 360;
     }
 
+    let offRouteStartTime = 0;
+    let isReroutingNow = false;
+
     function updateNavigationUI(position) {
-        if (!isNavigating || !navRoutePolyline) return;
+        if (!isNavigating || !navRoutePolyline || isReroutingNow) return;
+
+        // Ignore inaccurate GPS updates
+        if (position.coords.accuracy > 50) return;
 
         const userLatLng = L.latLng(position.coords.latitude, position.coords.longitude);
 
         let heading = 0;
         if (lastUserPos) {
+            let distMoved = lastUserPos.distanceTo(userLatLng);
+            if (distMoved < 8) return; // Prevent jitter for small movements
             heading = getBearing(lastUserPos, userLatLng);
         } else if (position.coords.heading) {
             heading = position.coords.heading;
@@ -420,11 +428,20 @@ document.addEventListener('DOMContentLoaded', () => {
             safetyAlertBox.classList.remove('active');
         }
 
-        // Check off-route > 50 meters
+        // Smart & Stable Re-Routing Check (threshold 120m)
         const distToRoute = getDistanceFromPolyline(userLatLng, navRoutePolyline);
-        if (distToRoute > 50) {
-            reRoute(userLatLng);
-            return;
+        if (distToRoute > 120) {
+            if (offRouteStartTime === 0) offRouteStartTime = currentPosTime;
+
+            // Trigger reroute ONLY if continuously off-route for > 7 seconds
+            if (currentPosTime - offRouteStartTime > 7000) {
+                isReroutingNow = true;
+                offRouteStartTime = 0;
+                reRoute(userLatLng);
+                return;
+            }
+        } else {
+            offRouteStartTime = 0; // Reset timer if user returns towards route
         }
 
         let closestInst = null;
