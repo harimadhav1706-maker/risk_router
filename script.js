@@ -300,6 +300,8 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => navZoomControls.style.display = 'none', 500);
         }
         lastUserPos = null;
+        isReroutingNow = false;
+        offRouteStartTime = 0;
 
         map.dragging.enable();
         map.touchZoom.enable();
