@@ -562,10 +562,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function reRoute(currentLatLng) {
         const now = Date.now();
-        if (now - lastRerouteTime < 30000) return; // Debounce max 1 in 30s
+        if (now - lastRerouteTime < 30000) {
+            isReroutingNow = false;
+            return; // Debounce max 1 in 30s
+        }
         lastRerouteTime = now;
 
-        if (navStatus && navStatus.innerText === "Re-routing...") return; // Prevent multiple calls
+        if (navStatus && navStatus.innerText === "Re-routing...") {
+            isReroutingNow = false;
+            return; // Prevent multiple calls
+        }
 
         if (navStatus) {
             navStatus.innerText = "Re-routing...";
@@ -582,6 +588,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 startLocInput.value = `${currentLatLng.lat.toFixed(5)}, ${currentLatLng.lng.toFixed(5)}`;
             }
             calculateRealRoute();
+        } else {
+            isReroutingNow = false;
         }
     }
 
@@ -862,6 +870,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             selectRouteConfiguration(fastest); // Default plot
 
+            isReroutingNow = false; // Release the routing lock
+            if (isNavigating && navStatus) {
+                navStatus.innerText = "En Route";
+                navStatus.classList.remove('rerouting');
+            }
+
         } catch (error) {
             console.error("Routing Error:", error);
             alert("Could not fetch route from service.");
@@ -870,6 +884,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 btn.disabled = false;
                 btn.style.opacity = "1";
             }
+            isReroutingNow = false;
         }
     }
 
