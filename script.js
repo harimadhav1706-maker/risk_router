@@ -160,6 +160,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let navRoutePolyline = null;
     let navEndLatLng = null;
     let routeInstructions = [];
+    let activeStepIndex = 0;
+    let routeTotalDistance = 0;
+    let routeTotalDuration = 0;
     let userMarker = null;
 
     const navBanner = document.getElementById('nav-banner');
@@ -227,6 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!routeGeoJSONLayer || !navRoutePolyline) return;
 
         isNavigating = true;
+        activeStepIndex = 0;
         document.body.classList.add('nav-mode');
 
         // Hide alternative routes during active navigation
@@ -441,9 +445,9 @@ document.addEventListener('DOMContentLoaded', () => {
             safetyAlertBox.classList.remove('active');
         }
 
-        // Smart & Stable Re-Routing Check (threshold 120m)
+        // Smart & Stable Re-Routing Check (threshold 40m)
         const distToRoute = getDistanceFromPolyline(userLatLng, navRoutePolyline);
-        if (distToRoute > 120) {
+        if (distToRoute > 40) {
             if (offRouteStartTime === 0) offRouteStartTime = currentPosTime;
 
             // Trigger reroute ONLY if continuously off-route for > 7 seconds
@@ -457,38 +461,41 @@ document.addEventListener('DOMContentLoaded', () => {
             offRouteStartTime = 0; // Reset timer if user returns towards route
         }
 
-        let closestInst = null;
         let minDist = Infinity;
-        let userPolyIdx = 0;
+        let closestInst = activeStepIndex;
 
-        // Find exactly where the user is longitudinally along the navigation route
-        let minDPoly = Infinity;
-        for (let i = 0; i < navRoutePolyline.length; i++) {
-            let d = userLatLng.distanceTo(navRoutePolyline[i]);
-            if (d < minDPoly) {
-                minDPoly = d;
-                userPolyIdx = i;
-            }
-        }
-
-        // Find the strictly upcoming instruction along the route
+        // Turn-by-Turn state machine mapping
         if (routeInstructions && routeInstructions.length > 0) {
-            for (let i = 0; i < routeInstructions.length; i++) {
-                let inst = routeInstructions[i];
-                if (inst.index >= userPolyIdx) {
-                    closestInst = i;
-                    let instLatLng = navRoutePolyline[inst.index];
-                    if (instLatLng) {
-                        minDist = userLatLng.distanceTo(instLatLng);
-                    }
-                    break;
+            let activeInst = routeInstructions[activeStepIndex];
+
+            // Failsafe in case of array bounce
+            if (!activeInst) activeInst = routeInstructions[routeInstructions.length - 1];
+
+            let targetLatLng = navRoutePolyline[activeInst.index];
+            if (targetLatLng) {
+                minDist = userLatLng.distanceTo(targetLatLng);
+
+                // Auto-increment instruction step if user is within 20 meters of the turn coordinate
+                if (minDist <= 20 && activeStepIndex < routeInstructions.length - 1) {
+                    activeStepIndex++;
+                    closestInst = activeStepIndex;
+                    activeInst = routeInstructions[activeStepIndex];
+                    targetLatLng = navRoutePolyline[activeInst.index];
+                    if (targetLatLng) minDist = userLatLng.distanceTo(targetLatLng);
                 }
-            }
-            // Fallback if at end of path
-            if (closestInst === null) {
-                closestInst = routeInstructions.length - 1;
-                let instLatLng = navRoutePolyline[routeInstructions[closestInst].index];
-                if (instLatLng) minDist = userLatLng.distanceTo(instLatLng);
+
+                // If user skips ahead or the engine falls behind manually fast-forward
+                let skipCheckDist = Infinity;
+                if (activeStepIndex < routeInstructions.length - 1) {
+                    let nextNode = navRoutePolyline[routeInstructions[activeStepIndex + 1].index];
+                    if (nextNode) skipCheckDist = userLatLng.distanceTo(nextNode);
+                    // If we are significantly closer to the *next* turn than the current one, skip ahead.
+                    if (skipCheckDist < minDist && distToRoute < 20) {
+                        activeStepIndex++;
+                        closestInst = activeStepIndex;
+                        minDist = skipCheckDist;
+                    }
+                }
             }
         }
 
@@ -539,30 +546,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (closestInst !== null && routeInstructions[closestInst]) {
             const step = routeInstructions[closestInst];
-            if (navInstruction) navInstruction.innerText = step.text;
+
+            // Format dynamic distance
+            let distStr = minDist > 1000 ? (minDist / 1000).toFixed(1) + ' km' : Math.round(minDist) + ' m';
+
+            // Format Top Banner
+            if (navDistance) navDistance.innerText = step.text; // e.g. "Turn Right"
+            if (navInstruction) navInstruction.innerText = `Continue for ${distStr}`; // e.g. "Continue for 240 m"
             if (primaryIconBox) primaryIconBox.innerHTML = getIconForStep(step);
 
-            let distStr = minDist > 1000 ? (minDist / 1000).toFixed(1) + ' km' : Math.round(minDist) + ' m';
-            if (navDistance) navDistance.innerText = distStr;
+            // Update bottom card strictly to constraints
+            let nextTurnBox = document.getElementById('nav-next-turn');
+            let nextTurnDistBox = document.getElementById('nav-next-turn-dist');
+            if (nextTurnBox) nextTurnBox.innerText = `Next Turn: ${step.text}`;
+            if (nextTurnDistBox) nextTurnDistBox.innerText = `Distance to Next Turn: ${distStr}`;
 
-            // Road name update
-            let roadEl = document.getElementById('nav-road-name');
-            let roadName = step.road || step.name || "";
-            if (roadName) {
-                if (roadEl) roadEl.innerText = roadName;
-            } else {
-                let match = step.text.match(/onto\s+(.+)$/i);
-                if (match && roadEl) roadEl.innerText = match[1];
-                else if (roadEl) roadEl.innerText = "En Route";
+            // Update Progress Bar
+            let progressBar = document.getElementById('nav-progress-bar');
+            if (progressBar && step.distance > 0) {
+                let progressPercent = Math.max(0, Math.min(100, (1 - (minDist / step.distance)) * 100));
+                progressBar.style.width = `${progressPercent}%`;
             }
 
             // ETA 10s smart update
             if (currentPosTime - lastEtaUpdateTime > 10000) {
                 lastEtaUpdateTime = currentPosTime;
-                let rawRemainingDist = 0;
-                for (let i = closestInst; i < routeInstructions.length; i++) {
+                let rawRemainingDist = minDist;
+                for (let i = closestInst + 1; i < routeInstructions.length; i++) {
                     rawRemainingDist += routeInstructions[i].distance || 0;
                 }
+
                 let distKm = rawRemainingDist / 1000;
                 if (distKm > 0.05) { // Only update if > 50m remaining
                     let expectedSpeed = (step.distance && step.time) ? (step.distance / step.time) * 3.6 : 30;
