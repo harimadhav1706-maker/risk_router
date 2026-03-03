@@ -79,6 +79,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let hazardLayer = L.layerGroup();
     let showRisk = false;
+    let landmarksLayer = L.layerGroup();
+    let showLandmarks = false;
     let cachedRoutes = []; // To store OSRM alternatives for selection
 
     // Draw hazards onto the layer
@@ -146,6 +148,86 @@ document.addEventListener('DOMContentLoaded', () => {
                 map.removeLayer(hazardLayer);
             }
         });
+    }
+
+    const landmarksToggleBtn = document.getElementById('landmarks-toggle-btn');
+    let landmarkDebounceTimer = null;
+
+    if (landmarksToggleBtn) {
+        landmarksToggleBtn.addEventListener('click', () => {
+            showLandmarks = !showLandmarks;
+            if (showLandmarks) {
+                landmarksToggleBtn.classList.remove('off');
+                landmarksLayer.addTo(map);
+                fetchAndDrawLandmarks();
+            } else {
+                landmarksToggleBtn.classList.add('off');
+                map.removeLayer(landmarksLayer);
+            }
+        });
+    }
+
+    map.on('moveend', () => {
+        if (showLandmarks && map.getZoom() > 12) {
+            if (landmarkDebounceTimer) clearTimeout(landmarkDebounceTimer);
+            landmarkDebounceTimer = setTimeout(fetchAndDrawLandmarks, 1000);
+        }
+    });
+
+    async function fetchAndDrawLandmarks() {
+        if (!showLandmarks || map.getZoom() <= 12) return;
+        const bounds = map.getBounds();
+        const sw = bounds.getSouthWest();
+        const ne = bounds.getNorthEast();
+
+        const query = `
+            [out:json][timeout:15];
+            (
+              node["historic"](${sw.lat},${sw.lng},${ne.lat},${ne.lng});
+              node["tourism"="museum"](${sw.lat},${sw.lng},${ne.lat},${ne.lng});
+              node["tourism"="attraction"](${sw.lat},${sw.lng},${ne.lat},${ne.lng});
+              node["amenity"="place_of_worship"](${sw.lat},${sw.lng},${ne.lat},${ne.lng});
+            );
+            out body limit 100;
+        `;
+
+        try {
+            landmarksToggleBtn.style.opacity = '0.5';
+            const res = await fetch("https://overpass-api.de/api/interpreter", {
+                method: "POST",
+                body: "data=" + encodeURIComponent(query)
+            });
+            const data = await res.json();
+
+            landmarksLayer.clearLayers();
+            if (data && data.elements) {
+                // limit just in case
+                data.elements.slice(0, 100).forEach(el => {
+                    if (el.lat && el.lon) {
+                        let name = el.tags && el.tags.name ? el.tags.name : "Landmark";
+                        let type = "Landmark";
+                        if (el.tags) {
+                            if (el.tags.historic) type = "Historic: " + el.tags.historic;
+                            else if (el.tags.tourism) type = "Tourism: " + el.tags.tourism;
+                            else if (el.tags.amenity) type = "Place: " + el.tags.amenity;
+                        }
+
+                        L.marker([el.lat, el.lon], {
+                            icon: L.divIcon({
+                                className: 'landmark-marker',
+                                html: `<div style="background: linear-gradient(135deg, #F59E0B, #D97706); width: 22px; height: 22px; border-radius: 50%; border: 2px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; font-size: 11px; color: white;">🏛️</div>`,
+                                iconSize: [22, 22],
+                                iconAnchor: [11, 11]
+                            })
+                        }).bindPopup(`<b>${name}</b><br><span style="color: #64748B; font-size: 0.85rem; text-transform: capitalize;">${type.replace(/_/g, ' ')}</span>`).addTo(landmarksLayer);
+                    }
+                });
+            }
+        } catch (e) {
+            console.error("Landmarks fetch error", e);
+        } finally {
+            landmarksToggleBtn.style.opacity = '1';
+        }
     }
 
     const safetyAlertBox = document.getElementById('safety-alert-box');
