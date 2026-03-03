@@ -359,17 +359,28 @@ document.addEventListener('DOMContentLoaded', () => {
         // Ignore inaccurate GPS updates
         if (position.coords.accuracy > 50) return;
 
-        const userLatLng = L.latLng(position.coords.latitude, position.coords.longitude);
+        let userLatLng = L.latLng(position.coords.latitude, position.coords.longitude);
 
         let heading = 0;
+        let distMoved = 0;
+
         if (lastUserPos) {
-            let distMoved = lastUserPos.distanceTo(userLatLng);
-            if (distMoved < 8) return; // Prevent jitter for small movements
-            heading = getBearing(lastUserPos, userLatLng);
-        } else if (position.coords.heading) {
+            distMoved = lastUserPos.distanceTo(userLatLng);
+            if (distMoved < 4) {
+                // Ignore small GPS drifts when standing still
+                userLatLng = lastUserPos; // Snap user to previous location
+            } else {
+                heading = getBearing(lastUserPos, userLatLng);
+                lastUserPos = userLatLng;
+            }
+        } else {
+            lastUserPos = userLatLng;
+        }
+
+        // If slow or stopped, fallback to device hardware compass
+        if (distMoved < 4 && position.coords.heading) {
             heading = position.coords.heading;
         }
-        lastUserPos = userLatLng;
 
         let currentPosTime = Date.now();
         let speedKmph = 0;
@@ -448,19 +459,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let closestInst = null;
         let minDist = Infinity;
+        let userPolyIdx = 0;
 
-        // Find current step based on distance to instruction points
+        // Find exactly where the user is longitudinally along the navigation route
+        let minDPoly = Infinity;
+        for (let i = 0; i < navRoutePolyline.length; i++) {
+            let d = userLatLng.distanceTo(navRoutePolyline[i]);
+            if (d < minDPoly) {
+                minDPoly = d;
+                userPolyIdx = i;
+            }
+        }
+
+        // Find the strictly upcoming instruction along the route
         if (routeInstructions && routeInstructions.length > 0) {
             for (let i = 0; i < routeInstructions.length; i++) {
                 let inst = routeInstructions[i];
-                let instLatLng = navRoutePolyline[inst.index];
-                if (instLatLng) {
-                    let d = userLatLng.distanceTo(instLatLng);
-                    if (d < minDist) {
-                        minDist = d;
-                        closestInst = i;
+                if (inst.index >= userPolyIdx) {
+                    closestInst = i;
+                    let instLatLng = navRoutePolyline[inst.index];
+                    if (instLatLng) {
+                        minDist = userLatLng.distanceTo(instLatLng);
                     }
+                    break;
                 }
+            }
+            // Fallback if at end of path
+            if (closestInst === null) {
+                closestInst = routeInstructions.length - 1;
+                let instLatLng = navRoutePolyline[routeInstructions[closestInst].index];
+                if (instLatLng) minDist = userLatLng.distanceTo(instLatLng);
             }
         }
 
