@@ -24,8 +24,8 @@
             <span class="tagline">Explore and navigate</span>
         </div>
         <div class="nav-right">
-            <div class="weather-indicator">⛅ 28°C</div>
-            <div class="traffic-status">Traffic: Moderate</div>
+            <div class="weather-indicator pill">⛅ 28°C</div>
+            <div class="traffic-status pill">🚦 Moderate</div>
         </div>
     </header>
 
@@ -69,30 +69,35 @@
 
     <!-- Bottom Navigation Info Card -->
     <div id="nav-bottom-card" class="nav-bottom-card">
-        <div class="nav-eta-box" style="gap: 4px; display: flex; flex-direction: column;">
-            <div class="eta-time" id="nav-next-turn" style="font-size: 1.15rem; margin-bottom: 2px;">Next Turn: --</div>
-            <div class="eta-stats" id="nav-next-turn-dist" style="font-size: 1rem; color: #3b82f6; font-weight: 600;">
-                Distance to Next Turn: --</div>
-            <div class="eta-stats" style="margin-top: 4px;">
-                Total Remaining: <span id="nav-eta-distance" style="font-weight:700; color:var(--text-main);">--
-                    km</span>
+        <div class="nav-eta-box">
+            <div class="eta-stat-item">
+                <span class="stat-label">Next Turn</span>
+                <span id="nav-next-turn" class="stat-value">--</span>
             </div>
-            <div class="eta-stats">
-                ETA: <span id="nav-eta-arrival" style="font-weight:700; color:var(--text-main);">--:--</span> (<span
-                    id="nav-eta-time">-- min</span>)
+            <div class="eta-stat-item">
+                <span class="stat-label">Turn Dist</span>
+                <span id="nav-next-turn-dist" class="stat-value highlight">--</span>
+            </div>
+            <div class="eta-stat-item">
+                <span class="stat-label">Remaining</span>
+                <span id="nav-eta-distance" class="stat-value">-- km</span>
+            </div>
+            <div class="eta-stat-item">
+                <span class="stat-label">ETA</span>
+                <span class="stat-value"><span id="nav-eta-arrival">--:--</span> (<span id="nav-eta-time">--
+                        min</span>)</span>
             </div>
         </div>
         <button id="stop-nav-btn" class="stop-nav-btn">
-            <span style="margin-right: 6px; font-weight: 600;">✖ End</span>
+            <span style="font-weight: 600;">✖ End</span>
         </button>
     </div>
 
-    <button id="traffic-toggle-btn" class="traffic-toggle-btn">🚥 Traffic: ON</button>
-    <button id="risk-toggle-btn" class="risk-toggle-btn">🛡️ Risk View: OFF</button>
-
-    <div class="action-buttons-column">
-        <button id="sos-btn" class="sos-btn">🚨 SOS</button>
-        <button id="report-hazard-btn" class="report-hazard-btn">📢 Report Hazard</button>
+    <div class="floating-action-panel">
+        <button id="traffic-toggle-btn" class="fab-btn" title="Toggle Traffic">🚥</button>
+        <button id="risk-toggle-btn" class="fab-btn" title="Risk View">🛡️</button>
+        <button id="sos-btn" class="fab-btn sos" title="SOS Emergency">🚨</button>
+        <button id="report-hazard-btn" class="fab-btn" title="Report Hazard">📢</button>
     </div>
 
     <!-- Hazard Report Modal -->
@@ -136,8 +141,14 @@
                 <button class="vehicle-btn active" data-vehicle="driving">🚗 Car</button>
                 <button class="vehicle-btn" data-vehicle="cycling">🚲 Bike</button>
             </div>
-            <input type="text" placeholder="Choose starting point..." class="search-input" id="start-loc">
-            <input type="text" placeholder="Choose destination..." class="search-input" id="end-loc">
+            <div class="input-group">
+                <span class="input-icon">📍</span>
+                <input type="text" placeholder="Choose starting point..." class="search-input" id="start-loc">
+            </div>
+            <div class="input-group">
+                <span class="input-icon">🎯</span>
+                <input type="text" placeholder="Choose destination..." class="search-input" id="end-loc">
+            </div>
             <button class="primary-btn" id="check-route-btn">Get Directions</button>
         </div>
 

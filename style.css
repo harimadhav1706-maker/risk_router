@@ -1,10 +1,13 @@
 :root {
     --bg-navy: #F4F6F8;
-    --bg-panel: rgba(255, 255, 255, 0.95);
+    --bg-panel: rgba(255, 255, 255, 0.85);
     --accent-orange: #F97316;
     --safe-green: #10B981;
     --warning-red: #EF4444;
-    --blue: #2563EB;
+    --blue: #4F46E5;
+    /* Indigo */
+    --accent-cyan: #06B6D4;
+    /* Cyan */
     --text-main: #1E293B;
     --text-muted: #64748B;
     --border-color: rgba(0, 0, 0, 0.08);
@@ -34,6 +37,23 @@ body {
     width: 100vw;
     height: 100vh;
     z-index: 1;
+    animation: fadeIn 1.5s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        filter: blur(5px);
+    }
+
+    to {
+        opacity: 1;
+        filter: blur(0);
+    }
+}
+
+.leaflet-layer {
+    filter: brightness(0.95);
 }
 
 /* Base UI Controls */
@@ -86,11 +106,15 @@ button {
     font-weight: 500;
 }
 
-.nav-right>div {
-    background: #F1F5F9;
-    padding: 8px 16px;
+.pill {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
     border-radius: 20px;
-    border: 1px solid transparent;
+    padding: 6px 14px;
+    font-size: 0.85rem;
+    font-weight: 600;
 }
 
 .mode-toggle {
@@ -208,11 +232,29 @@ button {
     transition: all 0.3s ease;
 }
 
+.input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.input-group .input-icon {
+    position: absolute;
+    left: 14px;
+    z-index: 2;
+    font-size: 1.1rem;
+}
+
+.input-group .search-input {
+    padding-left: 40px;
+}
+
 .search-input:focus {
     outline: none;
     background: #FFFFFF;
     border-color: var(--blue);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
 }
 
 .search-input::placeholder {
@@ -249,7 +291,7 @@ button {
 }
 
 .primary-btn {
-    background: var(--blue);
+    background: linear-gradient(135deg, var(--blue), var(--accent-cyan));
     color: white;
     border: none;
     padding: 14px;
@@ -257,13 +299,14 @@ button {
     font-weight: 600;
     font-size: 1rem;
     cursor: pointer;
-    transition: background 0.3s;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     height: 48px;
     /* Touch friendly */
 }
 
 .primary-btn:hover {
-    background: #2563EB;
+    transform: scale(1.03);
+    box-shadow: 0 8px 25px rgba(79, 70, 229, 0.3);
 }
 
 .route-safety-card {
@@ -430,13 +473,13 @@ button {
 }
 
 .primary-instruction {
-    background: #4F46E5;
-    /* Modern Indigo */
+    background: linear-gradient(135deg, #4F46E5, #9333EA);
+    /* Modern Indigo to Purple Gradient */
     border-radius: 20px;
     box-shadow: 0 12px 35px rgba(79, 70, 229, 0.4);
     display: flex;
     align-items: center;
-    padding: 20px 24px;
+    padding: 24px;
     gap: 16px;
     backdrop-filter: blur(10px);
 }
@@ -552,48 +595,63 @@ button {
     justify-content: space-between;
     align-items: center;
     padding: 20px 24px 30px 24px;
-    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.6s;
     opacity: 0;
     pointer-events: none;
+    transform: translateY(100%);
 }
 
 .nav-bottom-card.active {
-    bottom: 0;
+    bottom: 0px;
     opacity: 1;
     pointer-events: auto;
+    transform: translateY(0);
 }
 
 .nav-eta-box {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-gap: 12px 24px;
+    flex: 1;
+}
+
+.eta-stat-item {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 2px;
 }
 
-.eta-time {
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: var(--safe-green);
-}
-
-.eta-stats {
-    font-size: 1rem;
+.stat-label {
+    font-size: 0.8rem;
     color: var(--text-muted);
     font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.stat-value.highlight {
+    color: var(--accent-cyan);
 }
 
 .stop-nav-btn {
     padding: 0 20px;
     height: 56px;
     border-radius: 28px;
-    background: var(--warning-red);
+    background: linear-gradient(135deg, var(--warning-red), #C53030);
     color: white;
     border: none;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
-    transition: transform 0.2s;
+    box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .stop-nav-btn:hover {
@@ -629,85 +687,52 @@ button {
     border-color: transparent transparent var(--blue) transparent;
 }
 
-/* Traffic Toggle Button */
-.traffic-toggle-btn {
+.floating-action-panel {
     position: fixed;
-    top: 100px;
     right: 24px;
-    background: var(--bg-panel);
-    color: var(--text-main);
-    border: 1px solid var(--border-color);
-    padding: 10px 16px;
-    border-radius: 20px;
-    font-weight: 600;
-    font-size: 0.9rem;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    cursor: pointer;
-    z-index: 900;
-    backdrop-filter: blur(12px);
-    transition: all 0.3s ease;
-}
-
-.risk-toggle-btn {
-    position: fixed;
-    top: 150px;
-    right: 24px;
-    background: var(--bg-panel);
-    color: var(--text-main);
-    border: 1px solid var(--border-color);
-    padding: 10px 16px;
-    border-radius: 20px;
-    font-weight: 600;
-    font-size: 0.9rem;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    cursor: pointer;
-    z-index: 900;
-    backdrop-filter: blur(12px);
-    transition: all 0.3s ease;
-}
-
-.traffic-toggle-btn.off,
-.risk-toggle-btn.off {
-    color: var(--text-muted);
-    background: rgba(255, 255, 255, 0.7);
-}
-
-.action-buttons-column {
-    position: fixed;
-    top: 200px;
-    right: 24px;
+    top: 50%;
+    transform: translateY(-50%);
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    z-index: 900;
+    gap: 16px;
+    z-index: 1000;
 }
 
-.sos-btn,
-.report-hazard-btn {
+.fab-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
     background: var(--bg-panel);
-    color: var(--text-main);
-    border: 1px solid var(--border-color);
-    padding: 10px 16px;
-    border-radius: 20px;
-    font-weight: 600;
-    font-size: 0.9rem;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    cursor: pointer;
     backdrop-filter: blur(12px);
-    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    color: var(--text-main);
 }
 
-.sos-btn {
+.fab-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 10px 30px rgba(6, 182, 212, 0.3);
+    background: white;
+}
+
+.fab-btn.sos {
     color: var(--warning-red);
-    border-color: rgba(239, 68, 68, 0.3);
 }
 
-.sos-btn:hover {
-    background: rgba(239, 68, 68, 0.1);
+.fab-btn.sos:hover {
+    box-shadow: 0 10px 30px rgba(239, 68, 68, 0.4);
 }
 
-.report-hazard-btn:hover {
-    background: rgba(0, 0, 0, 0.03);
+.fab-btn.off {
+    background: rgba(255, 255, 255, 0.5);
+    opacity: 0.7;
+    filter: grayscale(1);
 }
 
 .hazard-modal {
@@ -797,9 +822,7 @@ body.nav-mode .top-nav,
 body.nav-mode .side-panel,
 body.nav-mode .mobile-search-bar,
 body.nav-mode .locate-btn,
-body.nav-mode .traffic-toggle-btn,
-body.nav-mode .risk-toggle-btn,
-body.nav-mode .action-buttons-column,
+body.nav-mode .floating-action-panel,
 body.nav-mode .mobile-menu-btn {
     opacity: 0;
     pointer-events: none;

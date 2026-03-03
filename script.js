@@ -42,7 +42,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (trafficToggleBtn) {
         trafficToggleBtn.addEventListener('click', () => {
             showTraffic = !showTraffic;
-            trafficToggleBtn.innerText = showTraffic ? "🚥 Traffic: ON" : "🚥 Traffic: OFF";
             if (showTraffic) {
                 trafficToggleBtn.classList.remove('off');
                 trafficLayer.addTo(map);
@@ -139,7 +138,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (riskToggleBtn) {
         riskToggleBtn.addEventListener('click', () => {
             showRisk = !showRisk;
-            riskToggleBtn.innerText = showRisk ? "🛡️ Risk View: ON" : "🛡️ Risk View: OFF";
             if (showRisk) {
                 riskToggleBtn.classList.remove('off');
                 hazardLayer.addTo(map);
@@ -558,8 +556,8 @@ document.addEventListener('DOMContentLoaded', () => {
             // Update bottom card strictly to constraints
             let nextTurnBox = document.getElementById('nav-next-turn');
             let nextTurnDistBox = document.getElementById('nav-next-turn-dist');
-            if (nextTurnBox) nextTurnBox.innerText = `Next Turn: ${step.text}`;
-            if (nextTurnDistBox) nextTurnDistBox.innerText = `Distance to Next Turn: ${distStr}`;
+            if (nextTurnBox) nextTurnBox.innerText = step.text;
+            if (nextTurnDistBox) nextTurnDistBox.innerText = distStr;
 
             // Update Progress Bar
             let progressBar = document.getElementById('nav-progress-bar');
@@ -960,7 +958,7 @@ document.addEventListener('DOMContentLoaded', () => {
             style: { color: '#1E3A8A', weight: 8, opacity: showTraffic ? 0 : 0.9, lineCap: 'round', lineJoin: 'round', className: 'primary-route-path' }
         }).addTo(map);
 
-        map.fitBounds(routeGeoJSONLayer.getBounds(), { padding: [50, 50], animate: true, duration: 0.8 });
+        map.fitBounds(routeGeoJSONLayer.getBounds(), { padding: [50, 50], animate: true, duration: 1.5, easeLinearity: 0.2 });
 
         const startPt = cfg.route.geometry.coordinates[0];
         const endPt = cfg.route.geometry.coordinates[cfg.route.geometry.coordinates.length - 1];
